@@ -1,0 +1,28 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-table-create-insert
+spec:
+  template:
+    spec:
+      containers:
+      - name: db-table-create-insert
+        image: postgres:latest
+        command: ["/bin/bash",  "-c", "psql -h app-db.default -U app_user -p 5432 -d app-db -f /tmp/app/app-db.ddl" ]
+        env:
+          - name: PGPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: app-db-creds
+                key: PGPASSWORD
+        volumeMounts:
+        - name: config-volume
+          mountPath: /tmp/app
+      restartPolicy: Never
+      volumes:
+        - name: config-volume
+          configMap:
+            name: app-db-ddl
+  backoffLimit: 10
+

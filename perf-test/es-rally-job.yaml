@@ -1,0 +1,47 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: es-rally
+  name: es-rally
+  namespace: elastic-system
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: rally
+        image: elastic/rally:latest
+        name: rally
+        env:
+        - name: ES_USER
+          value: "elastic"
+        - name: ES_PASS
+          valueFrom:
+            secretKeyRef:
+              name: es-es-elastic-user
+              key: elastic
+        - name: TRACK
+          #value: "http_logs"
+          value: "nyc_taxis"
+          #value: "elastic/logs"
+        command:
+          #- "/bin/bash"
+          #- "-c"
+          #- "sleep 3600"
+          - "sh"
+          - "-c"
+          - "/usr/local/bin/esrally race --track=$TRACK --test-mode --pipeline=benchmark-only --target-hosts=es-es-http:9200 --client-options=use_ssl:true,verify_certs:false,basic_auth_user:$ES_USER,basic_auth_password:$ES_PASS"
+          #- "sh"
+          #- "-c"
+          #- "/usr/local/bin/esrally" 
+          #- "race" 
+          #- "--track=nyc_taxis" 
+          #- "--test-mode"
+          #- "--pipeline=benchmark-only"
+          #- "--target-hosts=es-es-http:9200" 
+          #- "--client-options=use_ssl:true,verify_certs:false,basic_auth_user:$ES_USER,basic_auth_password:$ES_PASS"
+          #- "-h"
+          #- "--client-options"
+status: {}

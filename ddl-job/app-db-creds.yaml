@@ -1,0 +1,7 @@
+apiVersion: v1
+data:
+  PGPASSWORD: Y2hhbmdlaXQ=
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: app-db-creds

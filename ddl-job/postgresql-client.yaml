@@ -1,0 +1,49 @@
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-client
+spec:
+  selector:
+    matchLabels:
+      app: postgres-container
+  template:
+    metadata:
+      labels:
+        app: postgres-container
+    spec:
+      containers:
+        - name: postgres-container
+          image: postgres:latest
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "sleep 3600"
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_USER
+
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_DB
+
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_PASSWORD
+
+          volumeMounts:
+          - name: config-volume
+            mountPath: /tmp/app
+      restartPolicy: Always
+      volumes:
+        - name: config-volume
+          configMap:
+            name: app-db-sql
